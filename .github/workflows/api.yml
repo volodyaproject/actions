@@ -45,7 +45,7 @@ jobs:
       - name: build
         run: |
           export VERSION=${{ inputs.VERSION }}
-          export DOCKER_BUILDKIT=1 && ./scripts/run-tests.sh
+          export DOCKER_BUILDKIT=1 && chmod +x ./scripts/run-build.sh && ./scripts/run-build.sh
   
 
   test_api:
@@ -58,4 +58,4 @@ jobs:
       - name: test
         run: |
           export VERSION=${{ inputs.VERSION }}
-          export DOCKER_BUILDKIT=1 && ./scripts/run-tests.sh
+          export DOCKER_BUILDKIT=1 && chmod +x ./scripts/run-tests.sh &&./scripts/run-tests.sh
