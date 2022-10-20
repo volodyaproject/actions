@@ -18,8 +18,8 @@ permissions:
 
 
 env: 
-  API_IMAGE: '159794722102.dkr.ecr.us-east-1.amazonaws.com/archrival-api'
-
+  API_IMAGE  : '159794722102.dkr.ecr.us-east-1.amazonaws.com/archrival-api'
+  AWS_ECR_URL: ${{secrets.AWS_ECR_URL}}
 
 jobs:
   ecrlogin:
