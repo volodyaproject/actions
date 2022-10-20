@@ -18,10 +18,10 @@ permissions:
 
 
 env: 
-  API_IMAGE  : '159794722102.dkr.ecr.us-east-1.amazonaws.com/archrival-api'
-  VERSION    : ${{ inputs.VERSION }}
-  AWS_ECR_URL: ${{ secrets.AWS_ECR_URL }}
-
+  API_IMAGE   : '159794722102.dkr.ecr.us-east-1.amazonaws.com/archrival-api'
+  VERSION     : ${{ inputs.VERSION }}
+  AWS_ECR_URL : ${{ secrets.AWS_ECR_URL }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
 

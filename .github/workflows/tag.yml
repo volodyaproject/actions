@@ -1,0 +1,20 @@
+name: 'tag images'
+
+
+on:
+  workflow_call:
+    inputs:
+      VERSION  :
+         required: true
+         type    : string
+      EVENT    :
+         required: true
+         type    : string
+
+
+env: 
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+permissions:
+  contents: read
