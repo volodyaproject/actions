@@ -60,6 +60,7 @@ jobs:
   test_api:
     name     : api build
     if       : inputs.EVENT == 'pull_request'
+    needs    : ecrlogin
     runs-on  : self-hosted
     env      :
         VERSION: ${{ inputs.VERSION }}
