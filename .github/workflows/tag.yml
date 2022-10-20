@@ -28,7 +28,7 @@ jobs:
     steps  :
       - name: tag 
         run : |
-          export PROJECT_URL=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git
+          export PROJECT_URL=${{ github.server_url }}/${{ github.repository }}.git
           git config --global user.name "github_ci" && git config --global user.email "github@github.com"
           git remote set-url origin https://oauth2:${{ secrets.MAIN_TOKEN }}@${PROJECT_URL} && git checkout $GITHUB_SHA
           git tag -fa ${{ inputs.TAG }} -m "version ${{ inputs.TAG }}" && git push --tags -
