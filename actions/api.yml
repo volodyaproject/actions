@@ -1,0 +1,61 @@
+name: 'api deployment'
+
+
+on:
+  workflow_call:
+    inputs:
+      IMAGE:
+         required: true
+         type: string
+      VERSION:
+         required: true
+         type: string
+      EVENT:
+         required: true
+         type: string
+
+
+permissions:
+  contents: read
+
+
+env: 
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  ecrlogin:
+    name: AWS ECR login
+    if: inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
+    runs-on: self-hosted
+    steps:
+      - name: ECR Login
+        run: |
+          apt update && apt install awscli -y
+          aws ecr get-login-password --region ${{secrets.AWS_DEFAULT_REGION}} | docker login --username AWS --password-stdin ${{secrets.AWS_ECR_URL}} 
+  
+    
+  build_api:
+    name: api build
+    needs: ecrlogin
+    if: inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
+    runs-on: self-hosted
+    container:
+      image: ${{ inputs.IMAGE }}
+    steps:
+      - name: build
+        run: |
+          export VERSION=${{ inputs.VERSION }}
+          export DOCKER_BUILDKIT=1 && ./scripts/run-tests.sh
+  
+
+  test_api:
+    name: api build
+    if: inputs.EVENT == 'pull_request'
+    runs-on: self-hosted
+    container:
+      image: ${{ inputs.IMAGE }}
+    steps:
+      - name: test
+        run: |
+          export VERSION=${{ inputs.VERSION }}
+          export DOCKER_BUILDKIT=1 && ./scripts/run-tests.sh
