@@ -19,7 +19,7 @@ permissions:
 
 env: 
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  API_IMAGE   : 159794722102.dkr.ecr.us-east-1.amazonaws.com/archrival-api
+  API_IMAGE   : '159794722102.dkr.ecr.us-east-1.amazonaws.com/archrival-api'
 
 
 jobs:
