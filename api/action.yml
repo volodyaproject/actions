@@ -33,14 +33,20 @@ runs:
     - run: |
           if [ "${{ inputs.EVENT }}" == "push" ]; then 
             export VERSION=${{ inputs.VERSION }}
-            export DOCKER_BUILDKIT=1 && ./scripts/run-tests.sh
+            chmod +x ./scripts/run-build.sh
+            export DOCKER_BUILDKIT=1 && ./scripts/run-build.sh
           fi
+          echo $VERSION
+          echo "${{ inputs.EVENT }}"
       shell: bash
     - run: |
           if [ "${{ inputs.EVENT }}" == "pull_request" ]; then 
             export VERSION=${{ inputs.VERSION }}
+            chmod +x ./scripts/run-tests.sh
             export DOCKER_BUILDKIT=1 && ./scripts/run-tests.sh
           fi
+          echo $VERSION
+          echo "${{ inputs.EVENT }}"
       shell: bash
 
 
