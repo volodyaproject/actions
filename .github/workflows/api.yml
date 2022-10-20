@@ -19,7 +19,7 @@ permissions:
 
 env: 
   API_IMAGE  : '159794722102.dkr.ecr.us-east-1.amazonaws.com/archrival-api'
-  AWS_ECR_URL: ${{secrets.AWS_ECR_URL}}
+
 
 jobs:
   ecrlogin:
@@ -45,7 +45,7 @@ jobs:
         run : |
           apk add aws-cli
           aws ecr get-login-password --region ${{secrets.AWS_DEFAULT_REGION}} | docker login --username AWS --password-stdin ${{secrets.AWS_ECR_URL}}
-          export VERSION=${{ inputs.VERSION }}
+          export VERSION=${{ inputs.VERSION }} && export AWS_ECR_URL=${{ secrets.AWS_ECR_URL }}
           export DOCKER_BUILDKIT=1 && chmod +x ./scripts/run-build.sh && ./scripts/run-build.sh
   
 
