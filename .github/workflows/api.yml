@@ -4,12 +4,12 @@ name: 'api deployment'
 on:
   workflow_call:
     inputs:
-      VERSION  :
-         required: true
-         type    : string
-      EVENT    :
-         required: true
-         type    : string
+      RUN_NUMBER:
+          required: true
+          type    : string
+      EVENT     :
+          required: true
+          type    : string
 
 
 
@@ -19,14 +19,14 @@ permissions:
 
 env: 
   API_IMAGE   : '159794722102.dkr.ecr.us-east-1.amazonaws.com/archrival-api'
-  VERSION     : ${{ inputs.VERSION }}
+  RUN_NUMBER  : ${{ inputs.RUN_NUMBER }}
   AWS_ECR_URL : ${{ secrets.AWS_ECR_URL }}
 
 
 jobs:
-  reusable_tag:
+  reusable_version:
         if     : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
-        uses   : volodyaproject/actions/.github/workflows/tag.yml@main
+        uses   : volodyaproject/actions/.github/workflows/version.yml@main
         with   :
             EVENT: ${{ inputs.EVENT }}
         secrets: inherit
@@ -45,7 +45,7 @@ jobs:
     
   build_api:
     name     : api build
-    needs    : [ecrlogin, reusable_tag]
+    needs    : [ecrlogin, reusable_version]
     if       : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
     runs-on  : self-hosted
     container:
