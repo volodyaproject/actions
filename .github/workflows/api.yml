@@ -51,10 +51,15 @@ jobs:
     container:
       image: 159794722102.dkr.ecr.us-east-1.amazonaws.com/ecr-public/docker/library/docker:latest
     steps    :
+      - name: checkout
+        uses: actions/checkout@v3
+      - uses: actions/download-artifact@v2
+        with:
+          name: version
       - name: build
         run : |
           apk add aws-cli jq
-          jq ".[\"version\"] = \"${VERSION}\"" package.json > temp && mv temp package.json
+          jq ".[\"version\"] = \"${cat .version}\"" package.json > temp && mv temp package.json
           aws ecr get-login-password --region ${{secrets.AWS_DEFAULT_REGION}} | docker login --username AWS --password-stdin ${{secrets.AWS_ECR_URL}}
           export DOCKER_BUILDKIT=1 && chmod +x ./scripts/run-build.sh && ./scripts/run-build.sh
   
