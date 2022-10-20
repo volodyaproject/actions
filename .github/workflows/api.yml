@@ -25,7 +25,7 @@ env:
 jobs:
   ecrlogin:
     name: AWS ECR login
-    if: inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
+    #if: inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
     runs-on: self-hosted
     steps:
       - name: ECR Login
@@ -37,7 +37,7 @@ jobs:
   build_api:
     name: api build
     needs: ecrlogin
-    if: inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
+    #if: inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
     runs-on: self-hosted
     container:
       image: ${{ inputs.IMAGE }}
@@ -50,7 +50,7 @@ jobs:
 
   test_api:
     name: api build
-    if: inputs.EVENT == 'pull_request'
+    #if: inputs.EVENT == 'pull_request'
     runs-on: self-hosted
     container:
       image: ${{ inputs.IMAGE }}
