@@ -62,7 +62,7 @@ jobs:
           apk add aws-cli jq
           jq ".[\"version\"] = \"$(cat .version)\"" package.json > temp && mv temp package.json
           aws ecr get-login-password --region ${{secrets.AWS_DEFAULT_REGION}} | docker login --username AWS --password-stdin ${{secrets.AWS_ECR_URL}}
-          export DOCKER_BUILDKIT=1 && chmod +x ./scripts/run-build.sh && ./scripts/run-build.sh
+          # export DOCKER_BUILDKIT=1 && chmod +x ./scripts/run-build.sh && ./scripts/run-build.sh
           echo "version=$(cat .version)" >> $GITHUB_OUTPUT
   
 
