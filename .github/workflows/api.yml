@@ -12,7 +12,6 @@ on:
           type    : string
 
 
-
 permissions:
   contents: read
 
@@ -48,6 +47,8 @@ jobs:
     needs    : [ecrlogin, reusable_version]
     if       : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
     runs-on  : self-hosted
+    outputs:
+        version: ${{ steps.build.outputs.version }}
     container:
       image: 159794722102.dkr.ecr.us-east-1.amazonaws.com/ecr-public/docker/library/docker:latest
     steps    :
@@ -62,6 +63,7 @@ jobs:
           jq ".[\"version\"] = \"$(cat .version)\"" package.json > temp && mv temp package.json
           aws ecr get-login-password --region ${{secrets.AWS_DEFAULT_REGION}} | docker login --username AWS --password-stdin ${{secrets.AWS_ECR_URL}}
           export DOCKER_BUILDKIT=1 && chmod +x ./scripts/run-build.sh && ./scripts/run-build.sh
+          echo "version=$(cat .version)" >> $GITHUB_OUTPUT
   
 
   test_api:
@@ -74,3 +76,12 @@ jobs:
       - name: test
         run : |
           export DOCKER_BUILDKIT=1 && chmod +x ./scripts/run-tests.sh &&./scripts/run-tests.sh
+
+
+  reusable_tag:
+        if     : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
+        uses   : volodyaproject/actions/.github/workflows/tag.yml@main
+        with   :
+            EVENT: ${{ inputs.EVENT }}
+            TAG  : 
+        secrets: inherit
