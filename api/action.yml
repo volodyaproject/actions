@@ -27,8 +27,10 @@ runs:
   steps:
     - uses: actions/checkout@v3
     - run: |
+        export AWS_ECR_URL=${{ inputs.AWS_ECR_URL }} 
+        export AWS_DEFAULT_REGION=${{ inputs.AWS_DEFAULT_REGION }}
         apt update && apt install awscli -y
-        aws ecr get-login-password --region ${{ inputs.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin ${{ inputs.AWS_ECR_URL }} 
+        aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ECR_URL 
       shell: bash
     - run: |
           if [ "${{ inputs.EVENT }}" == "push" ]; then 
