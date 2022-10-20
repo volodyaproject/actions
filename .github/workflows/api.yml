@@ -18,8 +18,7 @@ permissions:
 
 
 env: 
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  API_IMAGE   : '159794722102.dkr.ecr.us-east-1.amazonaws.com/archrival-api'
+  API_IMAGE: '159794722102.dkr.ecr.us-east-1.amazonaws.com/archrival-api'
 
 
 jobs:
@@ -39,9 +38,6 @@ jobs:
     needs    : ecrlogin
     if       : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
     runs-on  : self-hosted
-    env      :
-      AWS_ECR_URL: ${{ secrets.AWS_ECR_URL }}
-      VERSION    : ${{ inputs.VERSION }}
     container:
       image: 159794722102.dkr.ecr.us-east-1.amazonaws.com/ecr-public/docker/library/docker:latest
     steps    :
@@ -49,16 +45,15 @@ jobs:
         run : |
           apk add aws-cli
           aws ecr get-login-password --region ${{secrets.AWS_DEFAULT_REGION}} | docker login --username AWS --password-stdin ${{secrets.AWS_ECR_URL}}
+          export VERSION=${{ inputs.VERSION }}
           export DOCKER_BUILDKIT=1 && chmod +x ./scripts/run-build.sh && ./scripts/run-build.sh
   
 
   test_api:
-    name     : api build
+    name     : api test
     if       : inputs.EVENT == 'pull_request'
     needs    : ecrlogin
     runs-on  : self-hosted
-    env      :
-        VERSION: ${{ inputs.VERSION }}
     container:
       image: 159794722102.dkr.ecr.us-east-1.amazonaws.com/ecr-public/docker/library/docker:latest
     steps    :
