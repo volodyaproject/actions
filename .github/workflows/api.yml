@@ -4,18 +4,18 @@ name: 'api deployment'
 on:
   workflow_call:
     inputs:
-      IMAGE:
-         required: true
-         type: string
-      VERSION:
-         required: true
-         type: string
-      EVENT:
-         required: true
-         type: string
       API_IMAGE:
          required: true
-         type: string
+         type    : string
+      VERSION  :
+         required: true
+         type    : string
+      EVENT    :
+         required: true
+         type    : string
+      IMAGE    :
+         required: true
+         type    : string
 
 
 permissions:
@@ -25,44 +25,47 @@ permissions:
 env: 
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+
 jobs:
   ecrlogin:
-    name: AWS ECR login
-    if: inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
+    name   : AWS ECR login
+    if     : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
     runs-on: self-hosted
-    steps:
+    steps  :
       - name: ECR Login
-        run: |
+        run : |
           apt update && apt install awscli -y
           aws ecr get-login-password --region ${{secrets.AWS_DEFAULT_REGION}} | docker login --username AWS --password-stdin ${{secrets.AWS_ECR_URL}} 
   
     
   build_api:
-    name: api build
-    needs: ecrlogin
-    if: inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
-    runs-on: self-hosted
-    env:
+    name     : api build
+    needs    : ecrlogin
+    if       : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
+    runs-on  : self-hosted
+    env      :
       AWS_ECR_URL: ${{ secrets.AWS_ECR_URL }}
       API_IMAGE  : ${{ inputs.API_IMAGE }}
+      VERSION    : ${{ inputs.VERSION }}
     container:
       image: ${{ inputs.IMAGE }}
-    steps:
+    steps    :
       - name: build
-        run: |
-          apk add aws-cli && aws ecr get-login-password --region ${{secrets.AWS_DEFAULT_REGION}} | docker login --username AWS --password-stdin ${{secrets.AWS_ECR_URL}} 
-          export VERSION=${{ inputs.VERSION }}
+        run : |
+          apk add aws-cli
+          aws ecr get-login-password --region ${{secrets.AWS_DEFAULT_REGION}} | docker login --username AWS --password-stdin ${{secrets.AWS_ECR_URL}}
           export DOCKER_BUILDKIT=1 && chmod +x ./scripts/run-build.sh && ./scripts/run-build.sh
   
 
   test_api:
-    name: api build
-    if: inputs.EVENT == 'pull_request'
-    runs-on: self-hosted
+    name     : api build
+    if       : inputs.EVENT == 'pull_request'
+    runs-on  : self-hosted
+    env      :
+        VERSION: ${{ inputs.VERSION }}
     container:
       image: ${{ inputs.IMAGE }}
-    steps:
+    steps    :
       - name: test
-        run: |
-          export VERSION=${{ inputs.VERSION }}
+        run : |
           export DOCKER_BUILDKIT=1 && chmod +x ./scripts/run-tests.sh &&./scripts/run-tests.sh
