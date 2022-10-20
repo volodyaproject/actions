@@ -30,6 +30,6 @@ jobs:
         run : |
           git config --system http.sslVerify false
           git config --global user.name "github_ci" && git config --global user.email "github@github.com"
-          git remote set-url origin https://oauth2:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} && git checkout ${{ github.sha }}
+          git remote set-url origin https://github_ci:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} && git checkout ${{ github.sha }}
           git tag -fa ${{ inputs.TAG }} -m "version ${{ inputs.TAG }}" && git push --tags -
 
