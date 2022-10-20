@@ -28,4 +28,5 @@ jobs:
     steps  :
       - uses: tvdias/github-tagger@v0.0.2
         with:
-          tag: ${{ inputs.TAG }}
+            tag       : ${{ inputs.TAG }}
+            repo_token: ${{ secrets.MAIN_TOKEN }}

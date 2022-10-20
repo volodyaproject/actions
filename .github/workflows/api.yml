@@ -79,9 +79,10 @@ jobs:
 
 
   reusable_tag:
+        needs  : [build_api]
         if     : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
         uses   : volodyaproject/actions/.github/workflows/tag.yml@main
         with   :
             EVENT: ${{ inputs.EVENT }}
-            TAG  : 
+            TAG  : ${{ needs.build_api.outputs.version }}
         secrets: inherit
