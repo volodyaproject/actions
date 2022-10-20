@@ -55,7 +55,6 @@ jobs:
   test_api:
     name     : api test
     if       : inputs.EVENT == 'pull_request'
-    needs    : ecrlogin
     runs-on  : self-hosted
     container:
       image: 159794722102.dkr.ecr.us-east-1.amazonaws.com/ecr-public/docker/library/docker:latest
