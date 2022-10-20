@@ -36,6 +36,7 @@ runs:
           if [ "${{ inputs.EVENT }}" == "push" ]; then 
             export AWS_ECR_URL=${{ inputs.AWS_ECR_URL }} 
             export AWS_DEFAULT_REGION=${{ inputs.AWS_DEFAULT_REGION }}
+            export API_IMAGE=159794722102.dkr.ecr.us-east-1.amazonaws.com/archrival-api
             export VERSION=${{ inputs.VERSION }}
             chmod +x ./scripts/run-build.sh
             export DOCKER_BUILDKIT=1 && ./scripts/run-build.sh
