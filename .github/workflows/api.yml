@@ -45,8 +45,8 @@ jobs:
     runs-on  : self-hosted
     env      :
       AWS_ECR_URL: ${{ secrets.AWS_ECR_URL }}
-      API_IMAGE  : inputs.API_IMAGE
-      VERSION    : inputs.VERSION
+      API_IMAGE  : ${{ inputs.API_IMAGE }}
+      VERSION    : ${{ inputs.VERSION }}
     container:
       image: ${{ inputs.IMAGE }}
     steps    :
@@ -63,11 +63,10 @@ jobs:
     needs    : ecrlogin
     runs-on  : self-hosted
     env      :
-        VERSION: inputs.VERSION
+        VERSION: ${{ inputs.VERSION }}
     container:
       image: ${{ inputs.IMAGE }}
     steps    :
       - name: test
         run : |
-          export VERSION=${{ inputs.VERSION }}
           export DOCKER_BUILDKIT=1 && chmod +x ./scripts/run-tests.sh &&./scripts/run-tests.sh
