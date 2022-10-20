@@ -1,13 +1,10 @@
-name: 'tag images'
+name: 'version determine'
 
 
 on:
   workflow_call:
     inputs:
-      VERSION  :
-         required: true
-         type    : string
-      EVENT    :
+        EVENT:
          required: true
          type    : string
 
@@ -18,3 +15,21 @@ env:
 
 permissions:
   contents: read
+
+
+jobs:
+  version_determine:
+    name   : version determine
+    if     : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
+    runs-on: self-hosted
+    steps  :
+      - name: get version
+        run : |
+          if command -v jq &> /dev/null ;then echo jq installed; else apt update && apt install jq -y; fi
+          export VERSION=$(jq -r .version < package.json || echo 0.0.0).$GITHUB_RUN_NUMBER && echo ${VERSION} > .version
+      - uses: actions/upload-artifact@v2
+        with:
+          name: version
+          path: .version
+
+  
