@@ -4,18 +4,13 @@ name: 'api deployment'
 on:
   workflow_call:
     inputs:
-      API_IMAGE:
-         required: true
-         type    : string
       VERSION  :
          required: true
          type    : string
       EVENT    :
          required: true
          type    : string
-      IMAGE    :
-         required: true
-         type    : string
+
 
 
 permissions:
@@ -24,6 +19,7 @@ permissions:
 
 env: 
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  API_IMAGE   : 159794722102.dkr.ecr.us-east-1.amazonaws.com/archrival-api
 
 
 jobs:
@@ -45,10 +41,9 @@ jobs:
     runs-on  : self-hosted
     env      :
       AWS_ECR_URL: ${{ secrets.AWS_ECR_URL }}
-      API_IMAGE  : ${{ inputs.API_IMAGE }}
       VERSION    : ${{ inputs.VERSION }}
     container:
-      image: ${{ inputs.IMAGE }}
+      image: 159794722102.dkr.ecr.us-east-1.amazonaws.com/ecr-public/docker/library/docker:latest
     steps    :
       - name: build
         run : |
@@ -65,7 +60,7 @@ jobs:
     env      :
         VERSION: ${{ inputs.VERSION }}
     container:
-      image: ${{ inputs.IMAGE }}
+      image: 159794722102.dkr.ecr.us-east-1.amazonaws.com/ecr-public/docker/library/docker:latest
     steps    :
       - name: test
         run : |
