@@ -28,7 +28,7 @@ env:
 jobs:
   ecrlogin:
     name: AWS ECR login
-    #if: inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
+    if: inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
     runs-on: self-hosted
     steps:
       - name: ECR Login
@@ -40,7 +40,7 @@ jobs:
   build_api:
     name: api build
     needs: ecrlogin
-    if: inputs.EVENT == 'push'
+    if: inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
     runs-on: self-hosted
     env:
       AWS_ECR_URL: ${{ secrets.AWS_ECR_URL }}
@@ -50,6 +50,7 @@ jobs:
     steps:
       - name: build
         run: |
+          akp add aws-cli && aws ecr get-login-password --region ${{secrets.AWS_DEFAULT_REGION}} | docker login --username AWS --password-stdin ${{secrets.AWS_ECR_URL}} 
           export VERSION=${{ inputs.VERSION }}
           export DOCKER_BUILDKIT=1 && chmod +x ./scripts/run-build.sh && ./scripts/run-build.sh
   
