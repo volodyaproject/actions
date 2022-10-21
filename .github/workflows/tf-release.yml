@@ -1,6 +1,10 @@
 name: 'TF init/apply template'
 on:
   workflow_call:
+    outputs:
+      version:
+        description: version of product
+        value: ${{ jobs.release.outputs.version }}
     inputs:
       APP    :
          required: true
@@ -21,6 +25,8 @@ jobs:
     name     : release
     runs-on  : self-hosted
     if       : inputs.CHANGES == 'true'
+    outputs  :
+        version: ${{ steps.tf_release.outputs.version }}
     container:
           image: ${{ inputs.IMAGE }}
 
@@ -32,10 +38,12 @@ jobs:
       - uses: actions/download-artifact@v3.0.0
         with:
           name: version
-
-      - name: terraform release
+        
+      - name: terraform_release
+        id  : tf_release
         run : |
           export ARTIFACT_NAME=build-$(cat .version).zip
+          echo "version=$(cat .version)" >> $GITHUB_OUTPUT
           cd ${{ inputs.TF_PATH }}
           zip -r $ARTIFACT_NAME .
           aws s3 cp --quiet $ARTIFACT_NAME s3://${{ secrets.ARTIFACTS_BUCKET }}/${{ inputs.APP }}/$ARTIFACT_NAME

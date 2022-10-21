@@ -111,7 +111,7 @@ jobs:
         if     : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
         uses   : volodyaproject/actions/.github/workflows/tag.yml@main
         with   :
-            TAG  : env-${{ needs.build_api.outputs.version }}
+            TAG  : env-${{ needs.env_release.outputs.version }}
         secrets: inherit
 
 
@@ -120,6 +120,6 @@ jobs:
         if     : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
         uses   : volodyaproject/actions/.github/workflows/tag.yml@main
         with   :
-            TAG  : core-${{ needs.build_api.outputs.version }}
+            TAG  : core-${{ needs.core_release.outputs.version }}
         secrets: inherit
 
