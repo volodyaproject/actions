@@ -64,5 +64,5 @@ jobs:
         if     : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
         uses   : volodyaproject/actions/.github/workflows/tag.yml@main
         with   :
-            TAG  : ${{ needs.build_api.outputs.version }}
+            TAG  : ${{ needs.reusable_version.outputs.version }}
         secrets: inherit
