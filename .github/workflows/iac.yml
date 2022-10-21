@@ -52,7 +52,7 @@ jobs:
   
     
   core_deploy:
-        if     : inputs.EVENT == 'workflow_dispatch'
+        if     : inputs.EVENT == 'workflow_dispatch' && github.event.inputs.core_to_deploy != 'false'
         needs  : [ecrlogin, paths-filter]
         uses   : volodyaproject/actions/.github/workflows/tf-apply.yml@main
         with   :
@@ -63,7 +63,7 @@ jobs:
 
 
   env_deploy:
-        if      : inputs.EVENT == 'workflow_dispatch'
+        if      : inputs.EVENT == 'workflow_dispatch' && github.event.inputs.env_to_deploy != 'false'
         needs   : [ecrlogin, paths-filter]
         uses    : volodyaproject/actions/.github/workflows/tf-apply.yml@main
         with    :
