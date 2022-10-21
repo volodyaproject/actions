@@ -1,0 +1,44 @@
+name: 'TF init/apply template'
+on:
+  workflow_call:
+    inputs:
+      APP    :
+         required: true
+         type    : string 
+      CHANGES:
+         required: true
+         type    : string
+      IMAGE  :
+         required: true
+         type    : string
+      TF_PATH:
+         required: true
+         type    : string
+        
+
+jobs:
+  release:
+    name: release
+    runs-on: self-hosted
+    container:
+      image: ${{ inputs.IMAGE }}
+
+
+    steps:
+      - name: checkout
+        if  : inputs.CHANGES == 'true'
+        uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v3.0.0
+        with:
+          name: version
+
+      - name: terraform release
+        if  : inputs.CHANGES == 'true'
+        run : |
+          export ARTIFACT_NAME=build-$(cat .version).zip
+          cd ${{ inputs.TF_PATH }}
+          zip -r $ARTIFACT_NAME .
+          aws s3 cp --quiet $ARTIFACT_NAME s3://${{ secrets.ARTIFACTS_BUCKET }}/${{ inputs.APP }}/$ARTIFACT_NAME
+
+

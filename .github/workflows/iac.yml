@@ -64,14 +64,45 @@ jobs:
 
 
   env_deploy:
-      if      : inputs.EVENT == 'workflow_dispatch'
-      needs   : [ecrlogin, paths-filter]
-      uses    : volodyaproject/actions/.github/workflows/tf-apply.yml@main
-      with    :
-          CHANGES       : ${{ needs.paths-filter.outputs.env }}
-          TF_PATH       : terraform/environment
-          TF_CONFIG_PATH: config/${{ github.event.inputs.env_to_deploy }}/
-          IMAGE         : 159794722102.dkr.ecr.us-east-1.amazonaws.com/terraform
-      secrets : inherit
+        if      : inputs.EVENT == 'workflow_dispatch'
+        needs   : [ecrlogin, paths-filter]
+        uses    : volodyaproject/actions/.github/workflows/tf-apply.yml@main
+        with    :
+            CHANGES       : ${{ needs.paths-filter.outputs.env }}
+            TF_PATH       : terraform/environment
+            TF_CONFIG_PATH: config/${{ github.event.inputs.env_to_deploy }}/
+            IMAGE         : 159794722102.dkr.ecr.us-east-1.amazonaws.com/terraform
+        secrets : inherit
   
+
+  reusable_version:
+        if     : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
+        uses   : volodyaproject/actions/.github/workflows/version.yml@main
+        with   :
+            EVENT: ${{ inputs.EVENT }}
+        secrets: inherit
+
+
+  core_release:
+        needs  : [ecrlogin, reusable_version, paths-filter]
+        if     : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
+        uses   : volodyaproject/actions/.github/workflows/tf-zip.yml@main
+        with   :
+            CHANGES: ${{ needs.paths-filter.outputs.core }}
+            TF_PATH: terraform/core/
+            IMAGE  : ${{ secrets.OPS_BUILDER_LATEST_IMAGE }}
+            APP    : core
+        secrets: inherit
+
+
+  env_release:
+        needs  : [ecrlogin, reusable_version, paths-filter]
+        if     : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
+        uses   : volodyaproject/actions/.github/workflows/tf-zip.yml@main
+        with   :
+            CHANGES       : ${{ needs.paths-filter.outputs.env }}
+            TF_PATH       : terraform/environment
+            IMAGE         : ${{ secrets.OPS_BUILDER_LATEST_IMAGE }}
+            APP           : env
+        secrets: inherit
 
