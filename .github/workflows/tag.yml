@@ -26,9 +26,9 @@ jobs:
     if     : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
     runs-on: self-hosted
     steps  :
-      - name: tag 
-        run : |
-          git config --global user.name "github_ci" && git config --global user.email "github@github.com"
-          git remote set-url origin https://test:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} && git checkout ${{ github.sha }}
-          git tag -fa ${{ inputs.TAG }} -m "version ${{ inputs.TAG }}" && git push --tags -
+    - name: Tag commit
+      uses: tvdias/github-tagger@v0.0.2
+      with:
+        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+        tag: "my_tag"
 
