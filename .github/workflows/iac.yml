@@ -16,7 +16,6 @@ permissions:
 
 env: 
   GITHUB_TOKEN            : ${{ secrets.GITHUB_TOKEN }}
-  OPS_BUILDER_LATEST_IMAGE: ${{ secrets.OPS_BUILDER_LATEST_IMAGE }}
 
 
 jobs:
@@ -90,7 +89,7 @@ jobs:
         with   :
             CHANGES: ${{ needs.paths-filter.outputs.core }}
             TF_PATH: terraform/core/
-            IMAGE  : $OPS_BUILDER_LATEST_IMAGE
+            IMAGE  : 159794722102.dkr.ecr.us-east-1.amazonaws.com/builder
             APP    : core
         secrets: inherit
 
@@ -102,7 +101,7 @@ jobs:
         with   :
             CHANGES       : ${{ needs.paths-filter.outputs.env }}
             TF_PATH       : terraform/environment
-            IMAGE         : $OPS_BUILDER_LATEST_IMAGE
+            IMAGE         : 159794722102.dkr.ecr.us-east-1.amazonaws.com/builder
             APP           : env
         secrets: inherit
 
