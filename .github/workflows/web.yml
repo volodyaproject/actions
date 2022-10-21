@@ -1,4 +1,4 @@
-name: 'api deployment'
+name: 'web deployment'
 
 
 on:
@@ -17,9 +17,7 @@ permissions:
 
 
 env: 
-  API_IMAGE   : '159794722102.dkr.ecr.us-east-1.amazonaws.com/archrival-api'
   RUN_NUMBER  : ${{ inputs.RUN_NUMBER }}
-  AWS_ECR_URL : ${{ secrets.AWS_ECR_URL }}
 
 
 jobs:
@@ -42,40 +40,29 @@ jobs:
           aws ecr get-login-password --region ${{secrets.AWS_DEFAULT_REGION}} | docker login --username AWS --password-stdin ${{secrets.AWS_ECR_URL}} 
   
     
-  build_api:
-    name     : api build
+  build_web:
+    name     : web build
     needs    : [ecrlogin, reusable_version]
     if       : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
     runs-on  : self-hosted
     container:
-      image: 159794722102.dkr.ecr.us-east-1.amazonaws.com/ecr-public/docker/library/docker:latest
+          image: 159794722102.dkr.ecr.us-east-1.amazonaws.com/builder
     steps    :
       - name: checkout
         uses: actions/checkout@v3
       - name: build
         run : |
-          apk add aws-cli jq
-          jq ".[\"version\"] = \"${{ needs.reusable_version.outputs.version }}\"" package.json > temp && mv temp package.json
-          aws ecr get-login-password --region ${{secrets.AWS_DEFAULT_REGION}} | docker login --username AWS --password-stdin ${{secrets.AWS_ECR_URL}}
-          # export DOCKER_BUILDKIT=1 && chmod +x ./scripts/run-build.sh && ./scripts/run-build.sh
-
-  
-  test_api:
-    name     : api test
-    if       : inputs.EVENT == 'pull_request'
-    runs-on  : self-hosted
-    container:
-      image: 159794722102.dkr.ecr.us-east-1.amazonaws.com/ecr-public/docker/library/docker:latest
-    steps    :
-      - name: test
-        run : |
-          export DOCKER_BUILDKIT=1 && chmod +x ./scripts/run-tests.sh &&./scripts/run-tests.sh
+          jq ".version = \"${{ needs.reusable_version.outputs.version }}\"" ./public/config.json > temp && cp temp ./public/config.json
+          npm i
+          CI=false npm run build
+          zip -r build-${{ needs.reusable_version.outputs.version }}.zip build/
+          aws s3 cp --quiet build-${{ needs.reusable_version.outputs.version }}.zip s3://${{ secrets.ARTIFACTS_BUCKET }}
 
 
   reusable_tag:
-        needs  : [build_api, reusable_version]
+        needs  : [build_web, reusable_version]
         if     : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
         uses   : volodyaproject/actions/.github/workflows/tag.yml@main
         with   :
-            TAG  : ${{ needs.reusable_version.outputs.version }}
+            TAG  : ${{ needs.build_api.outputs.version }}
         secrets: inherit

@@ -3,7 +3,11 @@ name: 'version determine'
 
 on:
   workflow_call:
-    inputs:
+    outputs:
+        version:
+        description: version of product
+        value: ${{ jobs.version_determine.outputs.version }}
+    inputs :
         EVENT:
          required: true
          type    : string
@@ -22,16 +26,16 @@ jobs:
     name   : version determine
     if     : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
     runs-on: self-hosted
+    outputs:
+        version: ${{ steps.get_ver.outputs.version }}
     steps  :
       - name: Checkout
         uses: actions/checkout@v3
       - name: get version
+        id  : get_ver
         run : |
           if command -v jq &> /dev/null ;then echo jq installed; else apt update && apt install jq -y; fi
-          export VERSION=$(jq -r .version < package.json || echo 0.0.0).$GITHUB_RUN_NUMBER && echo ${VERSION} > .version
-      - uses: actions/upload-artifact@v3.1.0
-        with:
-          name: version
-          path: .version
+          echo "version=$(jq -r .version < package.json || echo 0.0.0).$GITHUB_RUN_NUMBER" >> $GITHUB_OUTPUT
+
 
   
