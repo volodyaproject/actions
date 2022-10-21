@@ -3,11 +3,11 @@ on:
   workflow_call:
     inputs:
       EVENT     :
-         required: true
-         type    : string
+          required: true
+          type    : string
       RUN_NUMBER:
-         required: true
-         type    : string
+          required: true
+          type    : string
 
 
 permissions:
@@ -20,16 +20,17 @@ env:
 
 jobs:
   paths-filter:
+    if     : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
     runs-on: self-hosted
     outputs:
-      core: ${{ steps.filter.outputs.core }}
-      env : ${{ steps.filter.outputs.env }}
+          core: ${{ steps.filter.outputs.core }}
+          env : ${{ steps.filter.outputs.env }}
     steps  :
       - name: checkout
         uses: actions/checkout@v3
       - name: filter
         uses: dorny/paths-filter@v2
-        id: filter
+        id  : filter
         with:
           filters: |
             core:
@@ -39,38 +40,38 @@ jobs:
 
 
   ecrlogin:
-    needs: paths-filter
-    name: AWS ECR login
+    if     : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
+    needs  : paths-filter
+    name   : AWS ECR login
     runs-on: self-hosted
-    steps:
-      - name: ECR Login
-        run: |
-          apt update && apt install awscli -y
-          aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_URL }}
-          echo 
+    steps  :
+        - name: ECR Login
+          run : |
+            apt update && apt install awscli -y
+            aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_URL }}
+            echo 
   
     
   core_deploy:
-      needs: [ecrlogin, paths-filter]
-      uses: volodyaproject/actions/.github/workflows/tf-apply.yml@main
-      with:
-        CHANGES: ${{ needs.paths-filter.outputs.core }}
-        TF_PATH: terraform/core/
-        IMAGE: 159794722102.dkr.ecr.us-east-1.amazonaws.com/terraform
-      secrets: inherit
+        if     : inputs.EVENT == 'workflow_dispatch'
+        needs  : [ecrlogin, paths-filter]
+        uses   : volodyaproject/actions/.github/workflows/tf-apply.yml@main
+        with   :
+            CHANGES: ${{ needs.paths-filter.outputs.core }}
+            TF_PATH: terraform/core/
+            IMAGE  : 159794722102.dkr.ecr.us-east-1.amazonaws.com/terraform
+        secrets: inherit
 
 
-  dev_env_deploy:
-      needs: [ecrlogin, paths-filter]
-      strategy:
-        matrix:
-          TF_CONFIG_PATH: [dev, qa, staging]
-      uses: volodyaproject/actions/.github/workflows/tf-apply.yml@main
-      with:
-        CHANGES: ${{ needs.paths-filter.outputs.env }}
-        TF_PATH: terraform/environment
-        TF_CONFIG_PATH: config/${{ matrix.TF_CONFIG_PATH }}/
-        IMAGE: 159794722102.dkr.ecr.us-east-1.amazonaws.com/terraform
-      secrets: inherit
+  env_deploy:
+      if      : inputs.EVENT == 'workflow_dispatch'
+      needs   : [ecrlogin, paths-filter]
+      uses    : volodyaproject/actions/.github/workflows/tf-apply.yml@main
+      with    :
+          CHANGES       : ${{ needs.paths-filter.outputs.env }}
+          TF_PATH       : terraform/environment
+          TF_CONFIG_PATH: config/${{ github.event.inputs.env_to_deploy }}/
+          IMAGE         : 159794722102.dkr.ecr.us-east-1.amazonaws.com/terraform
+      secrets : inherit
   
 
