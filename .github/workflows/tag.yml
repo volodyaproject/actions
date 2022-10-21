@@ -7,9 +7,7 @@ on:
         TAG  :
           required: true
           type    : string
-        EVENT:
-          required: true
-          type    : string
+
 
 
 env: 
@@ -23,7 +21,6 @@ permissions:
 jobs:
   make_tag:
     name   : make tag
-    if     : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
     runs-on: self-hosted
     steps  :
     - name: tag commit
