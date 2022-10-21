@@ -5,41 +5,30 @@ on:
   workflow_call:
     inputs:
       RUN_NUMBER:
-          required: true
-          type    : string
+            required: true
+            type    : string
       EVENT     :
-          required: true
-          type    : string
+            required: true
+            type    : string
 
 
 permissions:
-  contents: read
+      contents: read
 
 
 env: 
-  API_IMAGE   : '159794722102.dkr.ecr.us-east-1.amazonaws.com/archrival-api'
-  RUN_NUMBER  : ${{ inputs.RUN_NUMBER }}
-  AWS_ECR_URL : ${{ secrets.AWS_ECR_URL }}
-
-
-jobs:
-  reusable_version:
-        if     : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
-        uses   : volodyaproject/actions/.github/workflows/version.yml@main
-        with   :
-            EVENT: ${{ inputs.EVENT }}
-        secrets: inherit
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
   ecrlogin:
-    name   : AWS ECR login
-    if     : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
-    runs-on: self-hosted
-    steps  :
-      - name: ECR Login
-        run : |
-          apt update && apt install awscli -y
-          aws ecr get-login-password --region ${{secrets.AWS_DEFAULT_REGION}} | docker login --username AWS --password-stdin ${{secrets.AWS_ECR_URL}} 
+      name   : AWS ECR login
+      if     : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
+      runs-on: self-hosted
+      steps  :
+          - name: ECR Login
+            run : |
+              apt update && apt install awscli -y
+              aws ecr get-login-password --region ${{secrets.AWS_DEFAULT_REGION}} | docker login --username AWS --password-stdin ${{secrets.AWS_ECR_URL}} 
   
     
   build_api:
@@ -48,16 +37,16 @@ jobs:
     if       : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
     runs-on  : self-hosted
     container:
-      image: 159794722102.dkr.ecr.us-east-1.amazonaws.com/ecr-public/docker/library/docker:latest
+            image: 159794722102.dkr.ecr.us-east-1.amazonaws.com/ecr-public/docker/library/docker:latest
     steps    :
-      - name: checkout
-        uses: actions/checkout@v3
-      - name: build
-        run : |
-          apk add aws-cli jq
-          jq ".[\"version\"] = \"${{ needs.reusable_version.outputs.version }}\"" package.json > temp && mv temp package.json
-          aws ecr get-login-password --region ${{secrets.AWS_DEFAULT_REGION}} | docker login --username AWS --password-stdin ${{secrets.AWS_ECR_URL}}
-          # export DOCKER_BUILDKIT=1 && chmod +x ./scripts/run-build.sh && ./scripts/run-build.sh
+          - name: checkout
+            uses: actions/checkout@v3
+          - name: build
+            run : |
+              apk add aws-cli jq
+              jq ".[\"version\"] = \"${{ needs.reusable_version.outputs.version }}\"" package.json > temp && mv temp package.json
+              aws ecr get-login-password --region ${{secrets.AWS_DEFAULT_REGION}} | docker login --username AWS --password-stdin ${{secrets.AWS_ECR_URL}}
+              # export DOCKER_BUILDKIT=1 && chmod +x ./scripts/run-build.sh && ./scripts/run-build.sh
 
   
   test_api:
@@ -65,11 +54,11 @@ jobs:
     if       : inputs.EVENT == 'pull_request'
     runs-on  : self-hosted
     container:
-      image: 159794722102.dkr.ecr.us-east-1.amazonaws.com/ecr-public/docker/library/docker:latest
+            image: 159794722102.dkr.ecr.us-east-1.amazonaws.com/ecr-public/docker/library/docker:latest
     steps    :
-      - name: test
-        run : |
-          export DOCKER_BUILDKIT=1 && chmod +x ./scripts/run-tests.sh &&./scripts/run-tests.sh
+          - name: test
+            run : |
+              export DOCKER_BUILDKIT=1 && chmod +x ./scripts/run-tests.sh &&./scripts/run-tests.sh
 
 
   reusable_tag:
