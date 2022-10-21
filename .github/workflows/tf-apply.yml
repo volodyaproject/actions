@@ -2,18 +2,18 @@ name: 'TF init/apply template'
 on:
   workflow_call:
     inputs:
-      CHANGES:
-         required: true
-         type: string
-      IMAGE:
-         required: true
-         type: string
-      TF_PATH:
-         required: true
-         type: string
-      TF_CONFIG_PATH:
-         required: false
-         type: string
+        CHANGES       :
+                  required: true
+                  type    : string
+        IMAGE         :
+                  required: true
+                  type    : string
+        TF_PATH       :
+                  required: true
+                  type    : string
+        TF_CONFIG_PATH:
+                  required: false
+                  type    : string
         
 
 jobs:
@@ -25,16 +25,16 @@ jobs:
           image: ${{ inputs.IMAGE }}
 
 
-    steps:
-    - name: checkout
-      uses: actions/checkout@v3
+    steps    :
+          - name: checkout
+            uses: actions/checkout@v3
 
-    - name: terraform init
-      run: |
-        cd ${{ inputs.TF_PATH }}
-        terraform init -backend-config ${{ inputs.TF_CONFIG_PATH }}terraform.config
+          - name: terraform init
+            run : |
+              cd ${{ inputs.TF_PATH }}
+              terraform init -backend-config ${{ inputs.TF_CONFIG_PATH }}terraform.config
 
-    - name: terraform apply
-      run: |
-        cd terraform/core
-        terraform apply -auto-approve -var-file ${{ inputs.TF_CONFIG_PATH }}terraform.tfvars
+          - name: terraform apply
+            run : |
+              cd terraform/core
+              terraform apply -auto-approve -var-file ${{ inputs.TF_CONFIG_PATH }}terraform.tfvars
