@@ -109,19 +109,19 @@ jobs:
 
   
   reusable_env_tag:
-        needs  : [env_release]
+        needs  : [env_release, reusable_version]
         if     : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
         uses   : volodyaproject/actions/.github/workflows/tag.yml@main
         with   :
-            TAG  : env-${{ needs.env_release.outputs.version }}
+            TAG  : env-${{ needs.reusable_version.outputs.version }}
         secrets: inherit
 
 
   reusable_core_tag:
-        needs  : [core_release]
+        needs  : [core_release, reusable_version]
         if     : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
         uses   : volodyaproject/actions/.github/workflows/tag.yml@main
         with   :
-            TAG  : core-${{ needs.core_release.outputs.version }}
+            TAG  : core-${{ needs.reusable_version.outputs.version }}
         secrets: inherit
 
