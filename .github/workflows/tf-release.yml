@@ -18,15 +18,15 @@ on:
 
 jobs:
   release:
-    name: release
-    runs-on: self-hosted
+    name     : release
+    runs-on  : self-hosted
+    if       : inputs.CHANGES == 'true'
     container:
-      image: ${{ inputs.IMAGE }}
+          image: ${{ inputs.IMAGE }}
 
 
     steps:
       - name: checkout
-        if  : inputs.CHANGES == 'true'
         uses: actions/checkout@v3
 
       - uses: actions/download-artifact@v3.0.0
@@ -34,7 +34,6 @@ jobs:
           name: version
 
       - name: terraform release
-        if  : inputs.CHANGES == 'true'
         run : |
           export ARTIFACT_NAME=build-$(cat .version).zip
           cd ${{ inputs.TF_PATH }}

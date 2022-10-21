@@ -85,7 +85,7 @@ jobs:
   core_release:
         needs  : [ecrlogin, reusable_version, paths-filter]
         if     : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
-        uses   : volodyaproject/actions/.github/workflows/tf-zip.yml@main
+        uses   : volodyaproject/actions/.github/workflows/tf-release.yml@main
         with   :
             CHANGES: ${{ needs.paths-filter.outputs.core }}
             TF_PATH: terraform/core/
@@ -97,7 +97,7 @@ jobs:
   env_release:
         needs  : [ecrlogin, reusable_version, paths-filter]
         if     : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
-        uses   : volodyaproject/actions/.github/workflows/tf-zip.yml@main
+        uses   : volodyaproject/actions/.github/workflows/tf-release.yml@main
         with   :
             CHANGES       : ${{ needs.paths-filter.outputs.env }}
             TF_PATH       : terraform/environment
