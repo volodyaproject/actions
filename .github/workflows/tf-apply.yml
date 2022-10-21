@@ -1,0 +1,44 @@
+name: 'TF init/apply template'
+on:
+  workflow_call:
+    inputs:
+      CHANGES:
+         required: true
+         type: string
+      IMAGE:
+         required: true
+         type: string
+      TF_PATH:
+         required: true
+         type: string
+      TF_CONFIG_PATH:
+         required: false
+         type: string
+        
+
+jobs:
+  terraform:
+    name: Terraform
+    runs-on: self-hosted
+    container:
+      image: ${{ inputs.IMAGE }}
+
+
+    steps:
+    - name: checkout
+      if: inputs.CHANGES == 'true'
+      uses: actions/checkout@v3
+
+
+    - name: terraform init
+      if: inputs.CHANGES == 'true'
+      run: |
+        cd ${{ inputs.TF_PATH }}
+        terraform init -backend-config ${{ inputs.TF_CONFIG_PATH }}terraform.config
+
+
+    - name: terraform apply
+      if: inputs.CHANGES == 'true'
+      run: |
+        cd terraform/core
+        terraform apply -auto-approve -var-file ${{ inputs.TF_CONFIG_PATH }}terraform.tfvars
