@@ -47,7 +47,7 @@ jobs:
     needs    : [ecrlogin, reusable_version]
     if       : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
     runs-on  : self-hosted
-    outputs:
+    outputs  :
         version: ${{ steps.build.outputs.version }}
     container:
       image: 159794722102.dkr.ecr.us-east-1.amazonaws.com/ecr-public/docker/library/docker:latest
@@ -58,6 +58,7 @@ jobs:
         with:
           name: version
       - name: build
+        id  : build
         run : |
           apk add aws-cli jq
           jq ".[\"version\"] = \"$(cat .version)\"" package.json > temp && mv temp package.json
