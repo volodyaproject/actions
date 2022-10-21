@@ -5,12 +5,12 @@ on:
   workflow_call:
     outputs:
         version:
-        description: version of product
-        value: ${{ jobs.version_determine.outputs.version }}
+          description: version of product
+          value      : ${{ jobs.version_determine.outputs.version }}
     inputs :
         EVENT:
-         required: true
-         type    : string
+          required: true
+          type    : string
 
 
 env: 
