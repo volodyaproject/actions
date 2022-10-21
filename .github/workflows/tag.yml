@@ -4,10 +4,9 @@ name: 'make tag'
 on:
   workflow_call:
     inputs:
-        TAG  :
-          required: true
-          type    : string
-
+          TAG:
+            required: true
+            type    : string
 
 
 env: 
@@ -15,7 +14,7 @@ env:
 
 
 permissions:
-  contents: read
+      contents: read
 
 
 jobs:
@@ -23,9 +22,9 @@ jobs:
     name   : make tag
     runs-on: self-hosted
     steps  :
-    - name: tag commit
-      uses: tvdias/github-tagger@v0.0.2
-      with:
-        repo-token: "${{ secrets.MAIN_TOKEN }}"
-        tag: ${{ inputs.TAG }}
+        - name: tag commit
+          uses: tvdias/github-tagger@v0.0.2
+          with:
+            repo-token: "${{ secrets.MAIN_TOKEN }}"
+            tag: ${{ inputs.TAG }}
 
