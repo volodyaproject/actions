@@ -43,9 +43,19 @@ jobs:
                     echo "$i=$(jq -r .$i < ${{ github.event.inputs.env_to_deploy }}.json)" >> $GITHUB_OUTPUT 
                   done
 
+  ecrlogin:
+      name   : AWS ECR login
+      if     : github.event_name == 'workflow_dispatch' || inputs.EVENT == 'push'
+      runs-on: self-hosted
+      steps  :
+          - name: ECR Login
+            run : |
+              apt update && apt install awscli -y
+              aws ecr get-login-password --region ${{secrets.AWS_DEFAULT_REGION}} | docker login --username AWS --password-stdin ${{secrets.AWS_ECR_URL}} 
+
 
   deploy_api_iac:
-          needs      : [get_versions]
+          needs      : [ecrlogin, get_versions]
           name       : api iac deploy
           if         : github.event_name == 'workflow_dispatch' || inputs.EVENT == 'push'
           runs-on    : self-hosted
