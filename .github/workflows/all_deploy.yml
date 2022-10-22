@@ -1,0 +1,64 @@
+name: 'api action'
+
+
+on: 
+  push             : 
+  workflow_dispatch:
+    
+
+env: 
+  GITHUB_TOKEN        : ${{ secrets.GITHUB_TOKEN }}
+  WEB_ARTIFACTS_BUCKET: archrival-front-artifacts
+  IAC_ARTIFACTS_BUCKET: archrival-iac-artifacts
+
+  
+jobs:
+  get_versions:
+          outputs:
+                api         : ${{ steps.get_versions.outputs.api }}
+                api_iac     : ${{ steps.get_versions.outputs.api_iac }}
+                web         : ${{ steps.get_versions.outputs.web }}
+                web_iac     : ${{ steps.get_versions.outputs.web_iac }}
+                platform_iac: ${{ steps.get_versions.outputs.platform_iac }}
+                env         : ${{ steps.get_versions.outputs.env }}
+          runs-on: self-hosted
+          steps  :
+              - name: checkout
+                uses: actions/checkout@v3
+              - name: get_versions
+                id  : get_versions
+                run : |
+                  for i in api web api_iac web_iac platform_iac
+                    do
+                      echo "$i=$(jq -r .$i < ${GITHUB_REF#refs/heads/}.json)" >> $GITHUB_OUTPUT 
+                    done
+                  echo "env=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT 
+
+
+  deploy_api_iac:
+          needs    : [get_versions]
+          name     : api iac deploy
+          if       : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
+          runs-on  : self-hosted
+          container:
+                image: 159794722102.dkr.ecr.us-east-1.amazonaws.com/terraform
+          steps    :
+                - name: api_iac_deploy
+                  run : |
+                      aws s3 cp --quiet s3://${IAC_ARTIFACTS_BUCKET}/api/build-${{ needs.get_versions.outputs.api_iac }}.zip .
+                      unzip -q -d iac build-${IAC_VERSION}.zip && cd iac
+                      terraform init -backend-config=key=api/${{ needs.get_versions.outputs.env }}/terraform.tfstate -backend-config=region=${{ secrets.AWS_DEFAULT_REGION }}
+                      terraform apply -auto-approve -var-file=vars/${{ needs.get_versions.outputs.env }}.tfvars 
+
+
+  deploy_api:
+        needs  : [deploy_api_iac, get_versions]
+        if     : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
+        uses   : volodyaproject/actions/.github/workflows/api_deploy.yml@main
+        with   :
+            IMAGE    : '159794722102.dkr.ecr.us-east-1.amazonaws.com/terraform'
+            IMAGE_TAG: ${{ needs.get_versions.outputs.api }}
+            ENV      : ${{ needs.get_versions.outputs.env }}
+        secrets: inherit
+
+
