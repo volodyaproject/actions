@@ -1,16 +1,16 @@
 name: 'api tf action'
 on:
   workflow_call:
-        IMAGE_TAG      :
-                  required: true
-                  type    : string
-        IMAGE          :
-                  required: true
-                  type    : string
-        ENV            :
-                  required: true
-                  type    : string
-        
+        IMAGE_TAG:
+            required: true
+            type    : string
+        IMAGE    :
+            required: true
+            type    : string
+        ENV      :
+            required: true
+            type    : string
+
 
 jobs:
   terraform:
@@ -29,7 +29,7 @@ jobs:
 
             - name: terraform init & apply
               run : |
-                cd ${{ inputs.TF_PATH }}
+                cd terraform/
                 ls -la
                 #terraform init -backend-config key=api/${{ inputs.ENV }}/terraform.tfstate
                 #export TF_VAR_image_tag=${{ inputs.IMAGE_TAG }}
