@@ -47,7 +47,7 @@ jobs:
   deploy_api_iac:
           needs      : [get_versions]
           name       : api iac deploy
-          if         : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
+          if         : github.event_name == 'workflow_dispatch' || inputs.EVENT == 'push'
           runs-on    : self-hosted
           environment: ${{ github.event.inputs.env_to_deploy }}
           container  :
@@ -63,7 +63,7 @@ jobs:
 
   deploy_api:
         needs  : [deploy_api_iac, get_versions]
-        if     : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
+        if     : github.event_name == 'workflow_dispatch' || inputs.EVENT == 'push'
         uses   : volodyaproject/actions/.github/workflows/api_deploy.yml@main
         with   :
             IMAGE    : '159794722102.dkr.ecr.us-east-1.amazonaws.com/terraform'
