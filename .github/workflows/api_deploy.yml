@@ -25,7 +25,7 @@ jobs:
             - uses: trstringer/manual-approval@v1
               if  : inputs.ENV != 'dev'
               with:
-                  secret: ${{ github.MAIN_TOKEN }}
+                  secret: ${{ secrets.MAIN_TOKEN }}
                   approvers: volodymyrlytvynenko
                   minimum-approvals: 1
                   issue-title: 'Deploying ${{ inputs.IMAGE_TAG }} to non dev env'
