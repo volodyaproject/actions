@@ -1,6 +1,7 @@
 name: 'api tf action'
 on:
   workflow_call:
+    inputs:
         IMAGE_TAG:
             required: true
             type    : string
