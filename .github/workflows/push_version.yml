@@ -1,0 +1,41 @@
+name: 'push version'
+on:
+  workflow_call:
+    inputs:
+        APP    :
+            required: true
+            type    : string
+        VERSION:
+            required: true
+            type    : string
+        ENV    :
+            required: true
+            type    : string
+
+
+jobs:
+  push_version:
+              name   : push version
+              runs-on: self-hosted
+              steps  :
+                  - name: checkout
+                    uses: actions/checkout@v3
+                    with:
+                      repository: volodyaproject/actions
+                      token     : ${{ secrets.MAIN_TOKEN }}
+
+                  - name: change_version
+                    run : |
+                      jq ".[\"${{ inputs.APP }}\"] = \"${{ inputs.VERSION }}\"" ${{ inputs.ENV }}.json > temp && mv temp ${{ inputs.ENV }}.json
+                      echo $COMPONENT - $VERSION-$(date +"%H:%M %d.%m.%Y") CI_COMMIT_SHORT_SHA - $CI_COMMIT_SHORT_SHA > ${{ inputs.ENV }}-runid.txt
+                      
+                  - name: commit changes
+                    uses: github-actions-x/commit@v2.9
+                    with:
+                      github-token  : ${{ secrets.MAIN_TOKEN }}
+                      push-branch   : 'main'
+                      commit-message: 'changed ${{ inputs.APP }} version to ${{ inputs.VERSION }}'
+                      force-add     : 'true'
+                      files         : ${{ inputs.ENV }}.json
+                      name          : github runner
+                      email         : github@email.com 

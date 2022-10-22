@@ -90,45 +90,56 @@ jobs:
         secrets    : inherit
 
 
-  deploy_api_qa:
+  push_version:
         needs      : [build_api, reusable_version]
         if         : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
-        uses       : volodyaproject/actions/.github/workflows/api_deploy.yml@main
+        uses       : volodyaproject/actions/.github/workflows/push_version.yml@main
         with       :
-              IMAGE    : '159794722102.dkr.ecr.us-east-1.amazonaws.com/terraform'
-              IMAGE_TAG: ${{ needs.reusable_version.outputs.version }}
-              ENV      : qa
+              APP    : api
+              VERSION: ${{ needs.reusable_version.outputs.version }}
+              ENV    : dev
         secrets    : inherit
 
 
-  deploy_api_qa2:
-        needs      : [build_api, reusable_version]
-        if         : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
-        uses       : volodyaproject/actions/.github/workflows/api_deploy.yml@main
-        with       :
-              IMAGE    : '159794722102.dkr.ecr.us-east-1.amazonaws.com/terraform'
-              IMAGE_TAG: ${{ needs.reusable_version.outputs.version }}
-              ENV      : qa2
-        secrets    : inherit
+#   deploy_api_qa:
+#         needs      : [build_api, reusable_version]
+#         if         : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
+#         uses       : volodyaproject/actions/.github/workflows/api_deploy.yml@main
+#         with       :
+#               IMAGE    : '159794722102.dkr.ecr.us-east-1.amazonaws.com/terraform'
+#               IMAGE_TAG: ${{ needs.reusable_version.outputs.version }}
+#               ENV      : qa
+#         secrets    : inherit
 
 
-  deploy_api_staging:
-        needs      : [build_api, reusable_version]
-        if         : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
-        uses       : volodyaproject/actions/.github/workflows/api_deploy.yml@main
-        with       :
-              IMAGE    : '159794722102.dkr.ecr.us-east-1.amazonaws.com/terraform'
-              IMAGE_TAG: ${{ needs.reusable_version.outputs.version }}
-              ENV      : staging
-        secrets    : inherit
+#   deploy_api_qa2:
+#         needs      : [build_api, reusable_version]
+#         if         : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
+#         uses       : volodyaproject/actions/.github/workflows/api_deploy.yml@main
+#         with       :
+#               IMAGE    : '159794722102.dkr.ecr.us-east-1.amazonaws.com/terraform'
+#               IMAGE_TAG: ${{ needs.reusable_version.outputs.version }}
+#               ENV      : qa2
+#         secrets    : inherit
 
 
-  deploy_api_prod:
-        needs      : [build_api, reusable_version, deploy_api_dev]
-        if         : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
-        uses       : volodyaproject/actions/.github/workflows/api_deploy.yml@main
-        with       :
-              IMAGE    : 159794722102.dkr.ecr.us-east-1.amazonaws.com/terraform
-              IMAGE_TAG: ${{ needs.reusable_version.outputs.version }}
-              ENV      : prod
-        secrets    : inherit
+#   deploy_api_staging:
+#         needs      : [build_api, reusable_version]
+#         if         : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
+#         uses       : volodyaproject/actions/.github/workflows/api_deploy.yml@main
+#         with       :
+#               IMAGE    : '159794722102.dkr.ecr.us-east-1.amazonaws.com/terraform'
+#               IMAGE_TAG: ${{ needs.reusable_version.outputs.version }}
+#               ENV      : staging
+#         secrets    : inherit
+
+
+#   deploy_api_prod:
+#         needs      : [build_api, reusable_version, deploy_api_dev]
+#         if         : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
+#         uses       : volodyaproject/actions/.github/workflows/api_deploy.yml@main
+#         with       :
+#               IMAGE    : 159794722102.dkr.ecr.us-east-1.amazonaws.com/terraform
+#               IMAGE_TAG: ${{ needs.reusable_version.outputs.version }}
+#               ENV      : prod
+#         secrets    : inherit
