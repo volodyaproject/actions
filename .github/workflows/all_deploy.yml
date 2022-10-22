@@ -46,7 +46,7 @@ jobs:
                 - name: api_iac_deploy
                   run : |
                       aws s3 cp --quiet s3://${IAC_ARTIFACTS_BUCKET}/api/build-${{ needs.get_versions.outputs.api_iac }}.zip .
-                      unzip -q -d iac build-${IAC_VERSION}.zip && cd iac
+                      unzip -q -d iac build-${{ needs.get_versions.outputs.api_iac }}.zip && cd iac
                       terraform init -backend-config=key=api/${{ needs.get_versions.outputs.env }}/terraform.tfstate -backend-config=region=${{ secrets.AWS_DEFAULT_REGION }}
                       terraform apply -auto-approve -var-file=vars/${{ needs.get_versions.outputs.env }}.tfvars 
 
