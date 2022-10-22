@@ -1,0 +1,35 @@
+name: 'TF init/apply template'
+on:
+  workflow_call:
+        IMAGE_TAG      :
+                  required: true
+                  type    : string
+        IMAGE          :
+                  required: true
+                  type    : string
+        ENV            :
+                  required: true
+                  type    : string
+        
+
+jobs:
+  terraform:
+    name     : terraform
+    runs-on  : self-hosted
+    container:
+          image: ${{ inputs.IMAGE }}
+
+    steps    :
+          - name: checkout
+            uses: actions/checkout@v3
+            with:
+              repository: volodyaproject/iac
+              token     : ${{ secrets.MAIN_TOKEN }}
+
+          - name: terraform init & apply
+            run : |
+              cd ${{ inputs.TF_PATH }}
+              ls -la
+              #terraform init -backend-config key=api/${{ inputs.ENV }}/terraform.tfstate
+              #export TF_VAR_image_tag=${{ inputs.IMAGE_TAG }}
+              #terraform apply -auto-approve -var-file vars/${{ inputs.ENV }}.tfvars
