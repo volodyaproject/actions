@@ -21,6 +21,14 @@ env:
 
 
 jobs:
+  reusable_version:
+        if     : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
+        uses   : volodyaproject/actions/.github/workflows/version.yml@main
+        with   :
+            EVENT: ${{ inputs.EVENT }}
+        secrets: inherit
+
+
   ecrlogin:
       name   : AWS ECR login
       if     : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
