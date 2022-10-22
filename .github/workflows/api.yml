@@ -84,7 +84,7 @@ jobs:
         if         : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
         uses       : volodyaproject/actions/.github/workflows/api_deploy.yml@main
         with       :
-              IMAGE    : 159794722102.dkr.ecr.us-east-1.amazonaws.com/terraform
+              IMAGE    : '159794722102.dkr.ecr.us-east-1.amazonaws.com/terraform'
               IMAGE_TAG: ${{ needs.reusable_version.outputs.version }}
               ENV      : dev
         secrets    : inherit
@@ -95,7 +95,7 @@ jobs:
         if         : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
         uses       : volodyaproject/actions/.github/workflows/api_deploy.yml@main
         with       :
-              IMAGE    : 159794722102.dkr.ecr.us-east-1.amazonaws.com/terraform
+              IMAGE    : '159794722102.dkr.ecr.us-east-1.amazonaws.com/terraform'
               IMAGE_TAG: ${{ needs.reusable_version.outputs.version }}
               ENV      : qa
         secrets    : inherit
@@ -106,7 +106,7 @@ jobs:
         if         : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
         uses       : volodyaproject/actions/.github/workflows/api_deploy.yml@main
         with       :
-              IMAGE    : 159794722102.dkr.ecr.us-east-1.amazonaws.com/terraform
+              IMAGE    : '159794722102.dkr.ecr.us-east-1.amazonaws.com/terraform'
               IMAGE_TAG: ${{ needs.reusable_version.outputs.version }}
               ENV      : qa2
         secrets    : inherit
@@ -117,7 +117,7 @@ jobs:
         if         : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
         uses       : volodyaproject/actions/.github/workflows/api_deploy.yml@main
         with       :
-              IMAGE    : 159794722102.dkr.ecr.us-east-1.amazonaws.com/terraform
+              IMAGE    : '159794722102.dkr.ecr.us-east-1.amazonaws.com/terraform'
               IMAGE_TAG: ${{ needs.reusable_version.outputs.version }}
               ENV      : staging
         secrets    : inherit
