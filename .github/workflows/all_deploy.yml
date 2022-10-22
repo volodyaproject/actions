@@ -2,9 +2,20 @@ name: 'api action'
 
 
 on: 
-  push             : 
   workflow_dispatch:
-    
+                inputs:
+                  env_to_deploy : 
+                        type       : choice
+                        description: which env to deploy
+                        required   : true
+                        default    : dev
+                        options    : 
+                          - dev
+                          - qa
+                          - qa2
+                          - staging
+                          - prod
+
 
 env: 
   GITHUB_TOKEN        : ${{ secrets.GITHUB_TOKEN }}
@@ -20,7 +31,6 @@ jobs:
                 web         : ${{ steps.get_versions.outputs.web }}
                 web_iac     : ${{ steps.get_versions.outputs.web_iac }}
                 platform_iac: ${{ steps.get_versions.outputs.platform_iac }}
-                env         : ${{ steps.get_versions.outputs.env }}
           runs-on: self-hosted
           steps  :
               - name: checkout
@@ -29,26 +39,26 @@ jobs:
                 id  : get_versions
                 run : |
                   for i in api web api_iac web_iac platform_iac
-                    do
-                      echo "$i=$(jq -r .$i < ${GITHUB_REF#refs/heads/}.json)" >> $GITHUB_OUTPUT 
-                    done
-                  echo "env=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT 
+                  do
+                    echo "$i=$(jq -r .$i < ${{ github.event.inputs.env_to_deploy }}.json)" >> $GITHUB_OUTPUT 
+                  done
 
 
   deploy_api_iac:
-          needs    : [get_versions]
-          name     : api iac deploy
-          if       : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
-          runs-on  : self-hosted
-          container:
-                image: 159794722102.dkr.ecr.us-east-1.amazonaws.com/terraform
-          steps    :
-                - name: api_iac_deploy
-                  run : |
-                      aws s3 cp --quiet s3://${IAC_ARTIFACTS_BUCKET}/api/build-${{ needs.get_versions.outputs.api_iac }}.zip .
-                      unzip -q -d iac build-${{ needs.get_versions.outputs.api_iac }}.zip && cd iac
-                      terraform init -backend-config=key=api/${{ needs.get_versions.outputs.env }}/terraform.tfstate -backend-config=region=${{ secrets.AWS_DEFAULT_REGION }}
-                      terraform apply -auto-approve -var-file=vars/${{ needs.get_versions.outputs.env }}.tfvars 
+          needs      : [get_versions]
+          name       : api iac deploy
+          if         : inputs.EVENT == 'workflow_dispatch' || inputs.EVENT == 'push'
+          runs-on    : self-hosted
+          environment: ${{ github.event.inputs.env_to_deploy }}
+          container  :
+                  image: 159794722102.dkr.ecr.us-east-1.amazonaws.com/terraform
+          steps      :
+                  - name: api_iac_deploy
+                    run : |
+                        aws s3 cp --quiet s3://${IAC_ARTIFACTS_BUCKET}/api/build-${{ needs.get_versions.outputs.api_iac }}.zip .
+                        unzip -q -d iac build-${{ needs.get_versions.outputs.api_iac }}.zip && cd iac
+                        terraform init -backend-config=key=api/${{ needs.get_versions.outputs.env }}/terraform.tfstate -backend-config=region=${{ secrets.AWS_DEFAULT_REGION }}
+                        terraform apply -auto-approve -var-file=vars/${{ needs.get_versions.outputs.env }}.tfvars 
 
 
   deploy_api:
